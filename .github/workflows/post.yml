@@ -1,0 +1,29 @@
+name: Post to Instagram
+
+on:
+  schedule:
+    # 9:00 AM, 2:00 PM and 7:00 PM India time (GitHub uses UTC; it may start a few minutes late)
+    - cron: '30 3,8,13 * * *'
+  workflow_dispatch: {} # "Run workflow" button for testing
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Post the next Reel
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: node robot/post.mjs
